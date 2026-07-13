@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain, Menu, shell } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain, Menu, safeStorage, shell } from 'electron'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import Store from 'electron-store'
@@ -23,8 +23,46 @@ if (process.platform === 'win32') {
   app.commandLine.appendSwitch('use-gl', 'angle')
 }
 
-const store = new Store<{ smtp?: SmtpConfig }>({ name: 'settings', ...(devRoot ? { cwd: path.join(devRoot, 'config') } : {}) })
+interface StoredSettings {
+  smtp?: SmtpConfig
+  smtpEncrypted?: string
+}
+
+const store = new Store<StoredSettings>({ name: 'settings', ...(devRoot ? { cwd: path.join(devRoot, 'config') } : {}) })
 const share = new ShareServer()
+
+function requireEncryption() {
+  if (!safeStorage.isEncryptionAvailable()) {
+    throw new Error('当前系统的安全存储不可用，无法安全保存邮箱配置')
+  }
+}
+
+function saveSmtpConfig(config: SmtpConfig) {
+  requireEncryption()
+  const encrypted = safeStorage.encryptString(JSON.stringify(config)).toString('base64')
+  store.set('smtpEncrypted', encrypted)
+  store.delete('smtp')
+}
+
+function getSmtpConfig(): SmtpConfig | null {
+  const encrypted = store.get('smtpEncrypted')
+  if (encrypted) {
+    requireEncryption()
+    try {
+      return JSON.parse(safeStorage.decryptString(Buffer.from(encrypted, 'base64'))) as SmtpConfig
+    } catch {
+      throw new Error('邮箱配置无法解密，可能由其他系统用户创建，请重新配置')
+    }
+  }
+
+  // Migrate settings written by versions before encrypted storage was added.
+  const legacy = store.get('smtp')
+  if (legacy) {
+    saveSmtpConfig(legacy)
+    return legacy
+  }
+  return null
+}
 
 // Some Windows graphics drivers and restricted environments can make Chromium's
 // GPU process fail before the renderer paints anything, resulting in a white window.
@@ -65,14 +103,14 @@ app.whenReady().then(() => {
 app.on('window-all-closed', () => { share.stop(); if (process.platform !== 'darwin') app.quit() })
 app.on('activate', () => { if (!BrowserWindow.getAllWindows().length) createWindow() })
 
-ipcMain.handle('config:get', () => store.get('smtp') ?? null)
-ipcMain.handle('config:save', (_e, config: SmtpConfig) => { store.set('smtp', config); return true })
+ipcMain.handle('config:get', () => getSmtpConfig())
+ipcMain.handle('config:save', (_e, config: SmtpConfig) => { saveSmtpConfig(config); return true })
 ipcMain.handle('files:pick', async (_e, kindle: boolean) => {
   const result = await dialog.showOpenDialog({ properties: ['openFile', 'multiSelections'], filters: kindle ? [{ name: 'Kindle 支持的文件', extensions: KINDLE_EXTENSIONS.map(x => x.slice(1)) }] : undefined })
   return result.canceled ? [] : result.filePaths
 })
 ipcMain.handle('kindle:send', async (_e, files: string[], recipients: string[]) => {
-  const config = store.get('smtp'); if (!config) throw new Error('请先完成 SMTP 配置')
+  const config = getSmtpConfig(); if (!config) throw new Error('请先完成 SMTP 配置')
   await sendToKindle(config, files, recipients); return true
 })
 ipcMain.handle('share:start', async (_e, files: string[]) => {
