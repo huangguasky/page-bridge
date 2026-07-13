@@ -1,0 +1,14 @@
+.drop.dragging {
+  border-color: #596de8;
+  background: #eef1ff;
+  box-shadow: 0 0 0 4px #596de81a;
+}
+
+.drop.dragging .drop-icon {
+  transform: scale(1.08);
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: .55;
+}
