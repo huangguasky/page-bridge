@@ -30,8 +30,7 @@ npm run dist
 ## 发布
 
 1. 将 `package.json` 中的 `version` 更新为发布版本并提交。
-2. 创建与推送 tag，例如：`git tag v0.1.0 && git push origin v0.1.0`。
-3. GitHub Actions 会分别在 Windows 与 macOS runner 构建，并将 `.exe`、Intel `.dmg` 和 Apple Silicon `.dmg` 添加到 GitHub Release。
+2. GitHub Actions 会分别在 Windows 与 macOS runner 构建，并将 `.exe`、Intel `.dmg` 和 Apple Silicon `.dmg` 添加到 GitHub Release。
 
 当前构建未配置代码签名。Windows 可能显示 SmartScreen 提示，macOS 可能显示“无法验证开发者”；面向公众正式发布时建议配置 Windows 代码签名证书和 Apple Developer ID/notarization。
 

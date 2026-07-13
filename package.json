@@ -54,11 +54,11 @@
     "mac": {
       "category": "public.app-category.utilities",
       "target": [{ "target": "dmg", "arch": ["x64", "arm64"] }],
-      "artifactName": "${productName}-${version}-mac-${arch}.${ext}"
+      "artifactName": "Page-Bridge-${version}-mac-${arch}.${ext}"
     },
     "win": {
       "target": [{ "target": "nsis", "arch": ["x64"] }],
-      "artifactName": "${productName}-${version}-windows-${arch}.${ext}"
+      "artifactName": "Page-Bridge-${version}-windows-${arch}.${ext}"
     },
     "nsis": { "oneClick": false, "allowToChangeInstallationDirectory": true }
   }

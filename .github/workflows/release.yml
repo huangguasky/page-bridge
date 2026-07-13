@@ -15,9 +15,9 @@ jobs:
       matrix:
         include:
           - os: windows-latest
-            command: npm run dist -- --win
+            command: npm run dist -- --win --publish never
           - os: macos-latest
-            command: npm run dist -- --mac
+            command: npm run dist -- --mac --publish never
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -29,7 +29,6 @@ jobs:
       - run: npm test
       - run: ${{ matrix.command }}
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
       - uses: actions/upload-artifact@v4
         with:
