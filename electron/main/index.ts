@@ -1,5 +1,6 @@
 import { app, BrowserWindow, dialog, ipcMain, Menu, safeStorage, shell } from 'electron'
 import path from 'node:path'
+import { readFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import Store from 'electron-store'
 import QRCode from 'qrcode'
@@ -30,6 +31,7 @@ interface StoredSettings {
 
 const store = new Store<StoredSettings>({ name: 'settings', ...(devRoot ? { cwd: path.join(devRoot, 'config') } : {}) })
 const share = new ShareServer()
+const EBOOK_EXTENSIONS = ['.epub', '.mobi', '.azw3']
 
 function requireEncryption() {
   if (!safeStorage.isEncryptionAvailable()) {
@@ -108,6 +110,17 @@ ipcMain.handle('config:save', (_e, config: SmtpConfig) => { saveSmtpConfig(confi
 ipcMain.handle('files:pick', async (_e, kindle: boolean) => {
   const result = await dialog.showOpenDialog({ properties: ['openFile', 'multiSelections'], filters: kindle ? [{ name: 'Kindle 支持的文件', extensions: KINDLE_EXTENSIONS.map(x => x.slice(1)) }] : undefined })
   return result.canceled ? [] : result.filePaths
+})
+ipcMain.handle('ebook:pick', async () => {
+  const result = await dialog.showOpenDialog({
+    properties: ['openFile'],
+    filters: [{ name: '电子书', extensions: EBOOK_EXTENSIONS.map(x => x.slice(1)) }]
+  })
+  return result.canceled ? null : result.filePaths[0]
+})
+ipcMain.handle('ebook:read', async (_e, filePath: string) => {
+  if (!EBOOK_EXTENSIONS.includes(path.extname(filePath).toLowerCase())) throw new Error('仅支持 EPUB、MOBI 和 AZW3 文件')
+  return readFile(filePath)
 })
 ipcMain.handle('kindle:send', async (_e, files: string[], recipients: string[]) => {
   const config = getSmtpConfig(); if (!config) throw new Error('请先完成 SMTP 配置')

@@ -1,6 +1,7 @@
 import { useEffect, useState, type DragEvent } from 'react'
+import EbookReader from './EbookReader'
 
-type View = 'home' | 'kindle' | 'phone' | 'settings'
+type View = 'home' | 'kindle' | 'phone' | 'reader' | 'settings'
 const basename = (p: string) => p.split(/[\\/]/).pop() || p
 const fmt = (n: number) => n < 1048576 ? `${(n/1024).toFixed(1)} KB` : `${(n/1048576).toFixed(1)} MB`
 
@@ -15,11 +16,13 @@ export default function App() {
       <button className={view==='home'?'active':''} onClick={()=>setView('home')}>⌂<span>首页</span></button>
       <button className={view==='kindle'?'active':''} onClick={()=>setView(config?'kindle':'settings')}>▣<span>传输到 Kindle</span></button>
       <button className={view==='phone'?'active':''} onClick={()=>setView('phone')}>▯<span>传输到手机</span></button>
+      <button className={view==='reader'?'active':''} onClick={()=>setView('reader')}>▤<span>电子书预览</span></button>
     </nav><p className="version">安全 · 本地 · 简单</p></aside>
     <main>{view === 'home' && <Home go={v=>setView(v==='kindle'&&!config?'settings':v)} />}
       {view === 'settings' && <Settings initial={config} onSaved={c=>{setConfig(c);setView('kindle')}} onBack={()=>setView(config?'kindle':'home')} />}
       {view === 'kindle' && config && <Kindle config={config} edit={()=>setView('settings')} />}
       {view === 'phone' && <Phone />}
+      {view === 'reader' && <EbookReader />}
     </main>
   </div>
 }

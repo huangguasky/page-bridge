@@ -9,6 +9,8 @@ interface Window {
     getConfig(): Promise<SmtpConfig | null>
     saveConfig(config: SmtpConfig): Promise<boolean>
     pickFiles(kindle?: boolean): Promise<string[]>
+    pickEbook(): Promise<string | null>
+    readEbook(path: string): Promise<Uint8Array>
     getPathForFile(file: File): string
     sendKindle(files: string[], recipients: string[]): Promise<boolean>
     startShare(files: string[]): Promise<ShareInfo>

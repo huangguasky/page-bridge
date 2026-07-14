@@ -1,6 +1,6 @@
 {
   "name": "page-bridge",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "在电脑、Kindle 与手机之间轻松传输文件",
   "main": "dist-electron/main/index.js",
   "author": "Page Bridge contributors",
@@ -21,6 +21,7 @@
     "@vitejs/plugin-react": "latest",
     "electron-store": "latest",
     "express": "latest",
+    "foliate-js": "^1.0.1",
     "mime-types": "latest",
     "nanoid": "latest",
     "nodemailer": "latest",
