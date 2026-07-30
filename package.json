@@ -54,7 +54,10 @@
     "files": ["dist/**/*", "dist-electron/**/*", "electron/preload.cjs", "package.json"],
     "mac": {
       "category": "public.app-category.utilities",
-      "target": [{ "target": "dmg", "arch": ["x64", "arm64"] }],
+      "identity": "-",
+      "hardenedRuntime": false,
+      "notarize": false,
+      "target": "dmg",
       "artifactName": "Page-Bridge-${version}-mac-${arch}.${ext}"
     },
     "win": {

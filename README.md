@@ -31,9 +31,9 @@ npm run dist
 ## 发布
 
 1. 将 `package.json` 中的 `version` 更新为发布版本并提交。
-2. GitHub Actions 会分别在 Windows 与 macOS runner 构建，并将 `.exe`、Intel `.dmg` 和 Apple Silicon `.dmg` 添加到 GitHub Release。
+2. 推送 `v*` 标签。GitHub Actions 会分别构建 Windows x64、macOS Intel 和 macOS Apple Silicon 安装包，并将它们添加到 GitHub Release。
 
-当前构建未配置代码签名。Windows 可能显示 SmartScreen 提示，macOS 可能显示“无法验证开发者”；面向公众正式发布时建议配置 Windows 代码签名证书和 Apple Developer ID/notarization。
+macOS 应用使用 ad-hoc 签名，不需要 Apple Developer 证书。首次打开时 macOS 会阻止运行；请尝试打开一次，再前往「系统设置 → 隐私与安全性」，点击该应用旁的「仍要打开」。这与正式 Developer ID 签名和 Apple 公证不同，仅适合允许用户手动确认的分发方式。Windows 当前未配置代码签名，可能显示 SmartScreen 提示。
 
 ## Kindle SMTP 提示
 
